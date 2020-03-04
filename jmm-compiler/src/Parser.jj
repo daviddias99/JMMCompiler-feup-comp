@@ -1,3 +1,6 @@
+options {
+    LOOKAHEAD = 1;
+}
 PARSER_BEGIN(Parser)
 
 public class Parser {
@@ -12,16 +15,126 @@ SKIP: {
 }
 
 TOKEN: {
-    <IDENTIFIER: ["A"-"Z", "a"-"z"](["0"-"9", "A"-"Z", "a"-"z", "_"])* >
-    | <INTEGERLITERAL: (["0"-"9"])+ >
-}
+    <LETTER: ["a"-"z", "A"-"Z"]>
+    | <DIGIT: ["0"-"9"] >
+    | <UNDERSCORE: "_" >
+    | <IDENTIFIER: <LETTER>(<LETTER> | <DIGIT> | <UNDERSCORE>)* >
+    | <INTEGERLITERAL: (<DIGIT>)+ >
+    | <LBRACKET: "{" >
+    | <RBRACKET: "}" >
+    | <LPAR: "(" >
+    | <RPAR: ")" >
+    | <LSQRBRACKET: "[" >
+    | <RSQRBRACKET: "]" >
+    | <SCOLON: ";" >
+    | <COMMA: "," >
+    | <EQUALS: "=" >
+    | <AND: "&&" >
+    | <LESS: "<" >
+    | <PLUS: "+" >
+    | <MINUS: "-" >
+    | <MUL: "*" >
+    | <DIV: "/" >
+    | <DOT: "." >
+    | <NOT: "!" >
+    }
 
 void Program(): { }
 {
-    ClassDeclaration() <EOF>
+    ImportDeclaration() ClassDeclaration() <EOF>
 }
 
-void ClassDeclaration(): { Token t1; }
+void ImportDeclaration(): { }
 {
-    t1 = <IDENTIFIER> { System.out.println(t1.image); }
+    ("import")*
+}
+
+void ClassDeclaration(): { }
+{
+    "class"
+    <IDENTIFIER>
+    ("extends" <IDENTIFIER>)?
+    <LBRACKET>
+    (VarDeclaration())*
+    (MethodDeclaration())*
+    <RBRACKET>
+}
+
+void VarDeclaration(): { }
+{
+   Type() <IDENTIFIER> <SCOLON>
+}
+
+void MethodDeclaration(): { }
+{
+    "public"
+    Type()
+    <IDENTIFIER>
+    <LPAR>
+    (
+        Type() <IDENTIFIER>
+        (<COMMA> Type() <IDENTIFIER>)*
+    )?
+    <RPAR>
+    <LBRACKET>
+    (VarDeclaration())*
+    (Statement())*
+    "return" Expression() <SCOLON>
+    <RBRACKET>
+}
+
+void Type(): { }
+{
+    "int" <LSQRBRACKET> <RSQRBRACKET>
+    |
+    "boolean"
+    |
+    "int"
+    |
+    <IDENTIFIER>
+}
+
+void Statement(): { }
+{
+    <LBRACKET> (Statement())* <RBRACKET>
+    |
+    "if" <LPAR> Expression() <RPAR> Statement() "else" Statement()
+    |
+    "while" <LPAR> Expression() <RPAR> Statement()
+    |
+    Expression() <SCOLON>
+    |
+    <IDENTIFIER> <EQUALS> Expression() <SCOLON>
+    |
+    <IDENTIFIER> <LSQRBRACKET> Expression() <RSQRBRACKET> <EQUALS> <SCOLON>
+}
+
+void Expression(): { }
+{
+    Expression() (<AND> | <LESS> | <PLUS> | <MINUS> | <MUL> | <DIV>) Expression()
+    |
+    Expression() <LSQRBRACKET> Expression() <RSQRBRACKET>
+    |
+    Expression() <DOT> "length"
+    |
+    Expression() <DOT> <IDENTIFIER> <LPAR> (Expression() (<COMMA> Expression())*)? <RPAR>
+    |
+    <INTEGERLITERAL>
+    |
+    "true"
+    |
+    "false"
+    |
+    <IDENTIFIER>
+    |
+    "this"
+    |
+    "new" "int" <LSQRBRACKET> Expression() <RSQRBRACKET>
+    |
+    "new" <IDENTIFIER> <LPAR> <RPAR>
+    |
+    <NOT> Expression()
+    |
+    <LPAR> Expression() <RPAR>
+
 }
