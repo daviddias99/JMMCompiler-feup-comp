@@ -18,17 +18,21 @@ Statement = "{", { Statement }, "}"
           | Expression, ";"  
           | Identifier, "=", Expression, ";"  
           | Identifier, "[", Expression, "]", "=", Expression, ";";  
+  
+ #### remove left recursion
+ Expression = IntegerLiteral, ExpressionFragment;  
+           | "true", ExpressionFragment;  
+           | "false", ExpressionFragment;    
+           | Identifier, ExpressionFragment;  
+           | "this", ExpressionFragment;  
+           | "new", "int", "[", Expression, "]", ExpressionFragment;  
+           | "new", Identifier, "(", ")", ExpressionFragment;  
+           | "!", Expression, ExpressionFragment;  
+           | "(", Expression, ")", ExpressionFragment;
+ 
 
-Expression = Expression, ("&&" | "<" | "+" | "-" | "*"| "/"), Expression
-           | Expression, "[", Expression, "]"   
-           | Expression, ".", "length"  
-           | Expression, ".", Identifier, "(", [ Expression { ",", Expression} ], ")"  
-           | IntegerLiteral  
-           | "true"  
-           | "false"  
-           | Identifier  
-           | "this"  
-           | "new", "int", "[", Expression, "]"  
-           | "new", Identifier, "(", ")"  
-           | "!", Expression  
-           | "(", Expression, ")";  
+ExpressionFragment = ("&&" | "<" | "+" | "-" | "*"| "/"), Expression, ExpressionFragment;  
+           | "[", Expression, "]", ExpressionFragment;     
+           | ".", "length", ExpressionFragment;    
+           | ".", Identifier, "(", [ Expression { ",", Expression} ], ")", ExpressionFragment;   
+           | Ɛ
