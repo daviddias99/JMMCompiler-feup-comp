@@ -30,9 +30,6 @@ TOKEN: {
     | <BOOLEAN: "boolean" >
     | <EXTENDS: "extends" >
     | <WHILE: "while" >
-    | <LETTER: ["a"-"z", "A"-"Z"]>
-    | <DIGIT: ["0"-"9"] >
-    | <UNDERSCORE: "_" >
     | <LBRACKET: "{" >
     | <RBRACKET: "}" >
     | <LPAR: "(" >
@@ -50,8 +47,8 @@ TOKEN: {
     | <DIV: "/" >
     | <DOT: "." >
     | <NOT: "!" >
-    | <IDENTIFIER: <LETTER>(<LETTER> | <DIGIT> | <UNDERSCORE>)* >
-    | <INTEGERLITERAL: (<DIGIT>)+ >
+    | <IDENTIFIER: ["a"-"z", "A"-"Z"](["a"-"z", "A"-"Z", "0"-"9", "_"])* >
+    | <INTEGERLITERAL: (["0"-"9"])+ >
 }
 
 void Program() : {}
@@ -61,7 +58,7 @@ void Program() : {}
 
 void ImportDeclaration() : {}
 {
-    (<IMPORT> )*
+    (<IMPORT>)*
 }
 
 void ClassDeclaration() : {}
@@ -92,7 +89,7 @@ void MethodDeclaration() : {}
     )?
     <RPAR>
     <LBRACKET>
-    (VarDeclaration())*
+    (LOOKAHEAD(2) VarDeclaration())*
     (Statement())*
     <RETURN> Expression() <SCOLON>
     <RBRACKET>
@@ -100,7 +97,7 @@ void MethodDeclaration() : {}
 
 void Type() : {}
 {
-    <INT> <LSQRBRACKET> <RSQRBRACKET>
+    LOOKAHEAD(2) <INT> <LSQRBRACKET> <RSQRBRACKET>
     |
     <BOOLEAN>
     |
@@ -117,16 +114,16 @@ void Statement() : {}
     |
     <WHILE> <LPAR> Expression() <RPAR> Statement()
     |
-    Expression() <SCOLON>
+    LOOKAHEAD(3) Expression() <SCOLON>
     |
-    <IDENTIFIER> <EQUALS> Expression() <SCOLON>
+    LOOKAHEAD(2) <IDENTIFIER> <EQUALS> Expression() <SCOLON>
     |
     <IDENTIFIER> <LSQRBRACKET> Expression() <RSQRBRACKET> <EQUALS> <SCOLON>
 }
 
-void Expression() : {}
+void Expression() : { }
 {
-    <INTEGERLITERAL> ExpressionFragment()
+    <INTEGERLITERAL> { } ExpressionFragment()
     |
     <TRUE> ExpressionFragment()
     |
@@ -136,7 +133,7 @@ void Expression() : {}
     |
     <THIS> ExpressionFragment()
     |
-    <NEW> <INT> <LSQRBRACKET> Expression() <RSQRBRACKET> ExpressionFragment()
+    LOOKAHEAD(2) <NEW> <INT> <LSQRBRACKET> Expression() <RSQRBRACKET> ExpressionFragment()
     |
     <NEW> <IDENTIFIER> <LPAR> <RPAR> ExpressionFragment()
     |
@@ -151,7 +148,7 @@ void ExpressionFragment() : {}
     |
     <LSQRBRACKET> Expression() <RSQRBRACKET> ExpressionFragment()
     |
-    <DOT> <LENGTH> ExpressionFragment()
+    LOOKAHEAD(2) <DOT> <LENGTH> ExpressionFragment()
     |
     <DOT> <IDENTIFIER> <LPAR> (Expression() (<COMMA> Expression())*)? <RPAR> ExpressionFragment()
     |

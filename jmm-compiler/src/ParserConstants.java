@@ -39,49 +39,43 @@ public interface ParserConstants {
   /** RegularExpression Id. */
   int WHILE = 19;
   /** RegularExpression Id. */
-  int LETTER = 20;
+  int LBRACKET = 20;
   /** RegularExpression Id. */
-  int DIGIT = 21;
+  int RBRACKET = 21;
   /** RegularExpression Id. */
-  int UNDERSCORE = 22;
+  int LPAR = 22;
   /** RegularExpression Id. */
-  int LBRACKET = 23;
+  int RPAR = 23;
   /** RegularExpression Id. */
-  int RBRACKET = 24;
+  int LSQRBRACKET = 24;
   /** RegularExpression Id. */
-  int LPAR = 25;
+  int RSQRBRACKET = 25;
   /** RegularExpression Id. */
-  int RPAR = 26;
+  int SCOLON = 26;
   /** RegularExpression Id. */
-  int LSQRBRACKET = 27;
+  int COMMA = 27;
   /** RegularExpression Id. */
-  int RSQRBRACKET = 28;
+  int EQUALS = 28;
   /** RegularExpression Id. */
-  int SCOLON = 29;
+  int AND = 29;
   /** RegularExpression Id. */
-  int COMMA = 30;
+  int LESS = 30;
   /** RegularExpression Id. */
-  int EQUALS = 31;
+  int PLUS = 31;
   /** RegularExpression Id. */
-  int AND = 32;
+  int MINUS = 32;
   /** RegularExpression Id. */
-  int LESS = 33;
+  int MUL = 33;
   /** RegularExpression Id. */
-  int PLUS = 34;
+  int DIV = 34;
   /** RegularExpression Id. */
-  int MINUS = 35;
+  int DOT = 35;
   /** RegularExpression Id. */
-  int MUL = 36;
+  int NOT = 36;
   /** RegularExpression Id. */
-  int DIV = 37;
+  int IDENTIFIER = 37;
   /** RegularExpression Id. */
-  int DOT = 38;
-  /** RegularExpression Id. */
-  int NOT = 39;
-  /** RegularExpression Id. */
-  int IDENTIFIER = 40;
-  /** RegularExpression Id. */
-  int INTEGERLITERAL = 41;
+  int INTEGERLITERAL = 38;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -108,9 +102,6 @@ public interface ParserConstants {
     "\"boolean\"",
     "\"extends\"",
     "\"while\"",
-    "<LETTER>",
-    "<DIGIT>",
-    "\"_\"",
     "\"{\"",
     "\"}\"",
     "\"(\"",
