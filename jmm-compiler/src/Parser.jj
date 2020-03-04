@@ -15,11 +15,24 @@ SKIP: {
 }
 
 TOKEN: {
-    <LETTER: ["a"-"z", "A"-"Z"]>
+    <IF: "if" >
+    | <ELSE: "else" >
+    | <PUBLIC: "public" >
+    | <NEW: "new" >
+    | <INT: "int" >
+    | <TRUE: "true" >
+    | <THIS: "this" >
+    | <FALSE: "false" >
+    | <CLASS: "class" >
+    | <LENGTH: "length" >
+    | <RETURN: "return" >
+    | <IMPORT: "import" >
+    | <BOOLEAN: "boolean" >
+    | <EXTENDS: "extends" >
+    | <WHILE: "while" >
+    | <LETTER: ["a"-"z", "A"-"Z"]>
     | <DIGIT: ["0"-"9"] >
     | <UNDERSCORE: "_" >
-    | <IDENTIFIER: <LETTER>(<LETTER> | <DIGIT> | <UNDERSCORE>)* >
-    | <INTEGERLITERAL: (<DIGIT>)+ >
     | <LBRACKET: "{" >
     | <RBRACKET: "}" >
     | <LPAR: "(" >
@@ -37,37 +50,39 @@ TOKEN: {
     | <DIV: "/" >
     | <DOT: "." >
     | <NOT: "!" >
-    }
+    | <IDENTIFIER: <LETTER>(<LETTER> | <DIGIT> | <UNDERSCORE>)* >
+    | <INTEGERLITERAL: (<DIGIT>)+ >
+}
 
-void Program(): { }
+void Program() : {}
 {
     ImportDeclaration() ClassDeclaration() <EOF>
 }
 
-void ImportDeclaration(): { }
+void ImportDeclaration() : {}
 {
-    ("import")*
+    (<IMPORT> )*
 }
 
-void ClassDeclaration(): { }
+void ClassDeclaration() : {}
 {
-    "class"
+    <CLASS>
     <IDENTIFIER>
-    ("extends" <IDENTIFIER>)?
+    (<EXTENDS> <IDENTIFIER>)?
     <LBRACKET>
     (VarDeclaration())*
     (MethodDeclaration())*
     <RBRACKET>
 }
 
-void VarDeclaration(): { }
+void VarDeclaration() : {}
 {
    Type() <IDENTIFIER> <SCOLON>
 }
 
-void MethodDeclaration(): { }
+void MethodDeclaration() : {}
 {
-    "public"
+    <PUBLIC>
     Type()
     <IDENTIFIER>
     <LPAR>
@@ -79,28 +94,28 @@ void MethodDeclaration(): { }
     <LBRACKET>
     (VarDeclaration())*
     (Statement())*
-    "return" Expression() <SCOLON>
+    <RETURN> Expression() <SCOLON>
     <RBRACKET>
 }
 
-void Type(): { }
+void Type() : {}
 {
-    "int" <LSQRBRACKET> <RSQRBRACKET>
+    <INT> <LSQRBRACKET> <RSQRBRACKET>
     |
-    "boolean"
+    <BOOLEAN>
     |
-    "int"
+    <INT>
     |
     <IDENTIFIER>
 }
 
-void Statement(): { }
+void Statement() : {}
 {
     <LBRACKET> (Statement())* <RBRACKET>
     |
-    "if" <LPAR> Expression() <RPAR> Statement() "else" Statement()
+    <IF> <LPAR> Expression() <RPAR> Statement() <ELSE> Statement()
     |
-    "while" <LPAR> Expression() <RPAR> Statement()
+    <WHILE> <LPAR> Expression() <RPAR> Statement()
     |
     Expression() <SCOLON>
     |
@@ -109,32 +124,36 @@ void Statement(): { }
     <IDENTIFIER> <LSQRBRACKET> Expression() <RSQRBRACKET> <EQUALS> <SCOLON>
 }
 
-void Expression(): { }
+void Expression() : {}
 {
-    Expression() (<AND> | <LESS> | <PLUS> | <MINUS> | <MUL> | <DIV>) Expression()
+    <INTEGERLITERAL> ExpressionFragment()
     |
-    Expression() <LSQRBRACKET> Expression() <RSQRBRACKET>
+    <TRUE> ExpressionFragment()
     |
-    Expression() <DOT> "length"
+    <FALSE> ExpressionFragment()
     |
-    Expression() <DOT> <IDENTIFIER> <LPAR> (Expression() (<COMMA> Expression())*)? <RPAR>
+    <IDENTIFIER> ExpressionFragment()
     |
-    <INTEGERLITERAL>
+    <THIS> ExpressionFragment()
     |
-    "true"
+    <NEW> <INT> <LSQRBRACKET> Expression() <RSQRBRACKET> ExpressionFragment()
     |
-    "false"
+    <NEW> <IDENTIFIER> <LPAR> <RPAR> ExpressionFragment()
     |
-    <IDENTIFIER>
+    <NOT> Expression() ExpressionFragment()
     |
-    "this"
-    |
-    "new" "int" <LSQRBRACKET> Expression() <RSQRBRACKET>
-    |
-    "new" <IDENTIFIER> <LPAR> <RPAR>
-    |
-    <NOT> Expression()
-    |
-    <LPAR> Expression() <RPAR>
+    <LPAR> Expression() <RPAR> ExpressionFragment()
+}
 
+void ExpressionFragment() : {}
+{
+    (<AND> | <LESS> | <PLUS> | <MINUS> | <MUL> | <DIV>) Expression() ExpressionFragment()
+    |
+    <LSQRBRACKET> Expression() <RSQRBRACKET> ExpressionFragment()
+    |
+    <DOT> <LENGTH> ExpressionFragment()
+    |
+    <DOT> <IDENTIFIER> <LPAR> (Expression() (<COMMA> Expression())*)? <RPAR> ExpressionFragment()
+    |
+    {}
 }
