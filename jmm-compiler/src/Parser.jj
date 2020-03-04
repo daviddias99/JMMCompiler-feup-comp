@@ -1,0 +1,27 @@
+PARSER_BEGIN(Parser)
+
+public class Parser {
+
+}
+
+PARSER_END(Parser)
+
+
+SKIP: {
+    " " | "\t" | "\r" | "\n"
+}
+
+TOKEN: {
+    <IDENTIFIER: ["A"-"Z", "a"-"z"](["0"-"9", "A"-"Z", "a"-"z", "_"])* >
+    | <INTEGERLITERAL: (["0"-"9"])+ >
+}
+
+void Program(): { }
+{
+    ClassDeclaration() <EOF>
+}
+
+void ClassDeclaration(): { Token t1; }
+{
+    t1 = <IDENTIFIER> { System.out.println(t1.image); }
+}
