@@ -125,7 +125,7 @@ void Expression() : { }
 {
     <INTEGERLITERAL> { } ExpressionFragment()
     |
-    <TRUE> ExpressionFragme nt()
+    <TRUE> ExpressionFragment()
     |
     <FALSE> ExpressionFragment()
     |
