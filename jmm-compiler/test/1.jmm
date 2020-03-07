@@ -1,8 +1,22 @@
-class Fac {
-    public int ComputeFac(int num) {
+class Foo extends Bar {
+    int[] foo;
+    boolean bar;
+    int foobar;
+
+    public Foo method(int num, boolean bool) {
         int num_aux;
         if (num < 1) num_aux = 1;
         else num_aux = num * (this.ComputeFac(num - 1));
+        return num_aux;
+    }
+
+    public Foo method2() {
+        int[] num_aux;
+
+        while (true && true) {
+            lol[this.length - 1] = 5;
+        }
+
         return num_aux;
     }
 }
