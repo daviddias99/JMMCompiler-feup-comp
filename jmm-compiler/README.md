@@ -14,10 +14,13 @@ Type = "int", "[", "]" | "boolean" | "int" | Identifier;
 
 Statement = "{", { Statement }, "}"  
           | "if", "(", Expression, ")", Statement, "else", Statement  
-          | "while", "(", Expression, ")", Statement  
-          | Expression, ";"  
+          | "while", "(", Expression, ")", Statement   
           | Identifier, "=", Expression, ";"  
-          | Identifier, "[", Expression, "]", "=", Expression, ";";  
+          | Identifier, "[", Expression, "]", ArrayAssignment ; 
+          | Expression, ";" 
+          
+ ArrayAssignment = "=" Expression() ";"
+                   | ExpressionFragment()
   
  #### remove left recursion
  Expression = IntegerLiteral, ExpressionFragment;  
@@ -29,6 +32,7 @@ Statement = "{", { Statement }, "}"
            | "new", Identifier, "(", ")", ExpressionFragment;  
            | "!", Expression, ExpressionFragment;  
            | "(", Expression, ")", ExpressionFragment;
+
  
 
 ExpressionFragment = ("&&" | "<" | "+" | "-" | "*"| "/"), Expression, ExpressionFragment;  

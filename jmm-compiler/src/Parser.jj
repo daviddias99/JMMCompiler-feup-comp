@@ -113,17 +113,24 @@ void Statement() : {}
     <IF> <LPAR> Expression() <RPAR> Statement() <ELSE> Statement()
     |
     <WHILE> <LPAR> Expression() <RPAR> Statement()
-    | // TODO: this lookahead is probably wrong, Expression() can expand to <IDENTIFIER> <LSQRBRACK> Expression() <RSQRBRACKET>, same as what's in line 122
-    LOOKAHEAD(3) Expression() <SCOLON>
     |
     LOOKAHEAD(2) <IDENTIFIER> <EQUALS> Expression() <SCOLON>
     |
-    <IDENTIFIER> <LSQRBRACKET> Expression() <RSQRBRACKET> <EQUALS> Expression() <SCOLON>
+    LOOKAHEAD(2) <IDENTIFIER> <LSQRBRACKET> Expression() <RSQRBRACKET>  ArrayAssignment()
+    |
+    Expression() <SCOLON>
 }
 
-void Expression() : { }
+void ArrayAssignment() : {}
 {
-    <INTEGERLITERAL> { } ExpressionFragment()
+    <EQUALS> Expression() <SCOLON>
+    |
+    ExpressionFragment()
+}
+
+void Expression() : {}
+{
+    <INTEGERLITERAL> ExpressionFragment()
     |
     <TRUE> ExpressionFragment()
     |
