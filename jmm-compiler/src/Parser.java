@@ -235,6 +235,7 @@ public class Parser implements ParserConstants {
         Expression();
         jj_consume_token(RSQRBRACKET);
         ArrayAssignment();
+        jj_consume_token(SCOLON);
       } else {
         switch ((jj_ntk==-1)?jj_ntk_f():jj_ntk) {
         case NEW:
@@ -263,7 +264,6 @@ public class Parser implements ParserConstants {
     case EQUALS:{
       jj_consume_token(EQUALS);
       Expression();
-      jj_consume_token(SCOLON);
       break;
       }
     default:
@@ -497,10 +497,10 @@ public class Parser implements ParserConstants {
     return false;
   }
 
-  static private boolean jj_3_5()
+  static private boolean jj_3_6()
  {
-    if (jj_scan_token(NEW)) return true;
-    if (jj_scan_token(INT)) return true;
+    if (jj_scan_token(DOT)) return true;
+    if (jj_scan_token(LENGTH)) return true;
     return false;
   }
 
@@ -518,17 +518,17 @@ public class Parser implements ParserConstants {
     return false;
   }
 
-  static private boolean jj_3_4()
- {
-    if (jj_scan_token(IDENTIFIER)) return true;
-    if (jj_scan_token(LSQRBRACKET)) return true;
-    return false;
-  }
-
   static private boolean jj_3_2()
  {
     if (jj_scan_token(INT)) return true;
     if (jj_scan_token(LSQRBRACKET)) return true;
+    return false;
+  }
+
+  static private boolean jj_3_5()
+ {
+    if (jj_scan_token(NEW)) return true;
+    if (jj_scan_token(INT)) return true;
     return false;
   }
 
@@ -539,10 +539,10 @@ public class Parser implements ParserConstants {
     return false;
   }
 
-  static private boolean jj_3_6()
+  static private boolean jj_3_4()
  {
-    if (jj_scan_token(DOT)) return true;
-    if (jj_scan_token(LENGTH)) return true;
+    if (jj_scan_token(IDENTIFIER)) return true;
+    if (jj_scan_token(LSQRBRACKET)) return true;
     return false;
   }
 

@@ -116,14 +116,14 @@ void Statement() : {}
     |
     LOOKAHEAD(2) <IDENTIFIER> <EQUALS> Expression() <SCOLON>
     |
-    LOOKAHEAD(2) <IDENTIFIER> <LSQRBRACKET> Expression() <RSQRBRACKET>  ArrayAssignment()
+    LOOKAHEAD(2) <IDENTIFIER> <LSQRBRACKET> Expression() <RSQRBRACKET> ArrayAssignment() <SCOLON>
     |
     Expression() <SCOLON>
 }
 
 void ArrayAssignment() : {}
 {
-    <EQUALS> Expression() <SCOLON>
+    <EQUALS> Expression()
     |
     ExpressionFragment()
 }

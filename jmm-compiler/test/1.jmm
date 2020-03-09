@@ -17,6 +17,8 @@ class Foo extends Bar {
             lol[this.length - 1] = 5;
         }
 
+        banana[0];
+
         return num_aux;
     }
 }
