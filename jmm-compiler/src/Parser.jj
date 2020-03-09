@@ -140,19 +140,16 @@ void Expression() : {}
     |
     <THIS> ExpressionFragment()
     |
-    <NEW> DynamicAllocation()
+    <NEW>
+    (
+        <INT> <LSQRBRACKET> Expression() <RSQRBRACKET> ExpressionFragment()
+        |
+        <IDENTIFIER> <LPAR> <RPAR> ExpressionFragment()
+    )
     |
     <NOT> Expression() ExpressionFragment()
     |
     <LPAR> Expression() <RPAR> ExpressionFragment()
-}
-
-void DynamicAllocation() : {}
-{
-   <INT> <LSQRBRACKET> Expression() <RSQRBRACKET> ExpressionFragment()
-   |
-   <IDENTIFIER> <LPAR> <RPAR> ExpressionFragment()
-
 }
 
 void ExpressionFragment() : {}
@@ -161,9 +158,13 @@ void ExpressionFragment() : {}
     |
     <LSQRBRACKET> Expression() <RSQRBRACKET> ExpressionFragment()
     |
-    LOOKAHEAD(2) <DOT> <LENGTH> ExpressionFragment()
-    |
-    <DOT> <IDENTIFIER> <LPAR> (Expression() (<COMMA> Expression())*)? <RPAR> ExpressionFragment()
+    <DOT>
+    (
+        <LENGTH> ExpressionFragment()
+        |
+        <IDENTIFIER> <LPAR> (Expression() (<COMMA> Expression())*)? <RPAR> ExpressionFragment()
+    )
     |
     {}
 }
+
