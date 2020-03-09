@@ -41,6 +41,8 @@ ExpressionFragment =     | "[", Expression, "]", ExpressionFragment;
            | ".", Identifier, "(", [ Expression { ",", Expression} ], ")", ExpressionFragment;   
            | Ɛ
            
+ # OUTDATED GRAMMAR          
+           
  ### Chavascal way
  
  (import (static)? (Identifier ".")+ Identifier "(" ( Type ( "," Type)* )? ")" (Type)? ";")*
@@ -51,3 +53,4 @@ ExpressionFragment =     | "[", Expression, "]", ExpressionFragment;
  * É preciso todos os identifiers separados por pontos para invocar o metodo?
  * Nos métodos nao static qual é o identifier usado para o construtor?
  * Assume-se que o construtor n tem argumentos?
+ * Em vez de ter parentesis com um ou lá dentro, nao será preferivel ter uma produção nova?
