@@ -28,12 +28,12 @@ Statement = "{", { Statement }, "}"
            | "false", ExpressionFragment;    
            | Identifier, ExpressionFragment;  
            | "this", ExpressionFragment;  
-           | "new", "int", "[", Expression, "]", ExpressionFragment;  
-           | "new", Identifier, "(", ")", ExpressionFragment;  
+           | "new", DynamicAllocation; 
            | "!", Expression, ExpressionFragment;  
 ]           | "(", Expression, ")", ExpressionFragment;
 
- 
+ DynamicAllocation = "int", "[", Expression, "]", ExpressionFragment;
+           | Identifier, "(", ")", ExpressionFragment;  
 
 ExpressionFragment = ("&&" | "<" | "+" | "-" | "*"| "/"), Expression, ExpressionFragment;  
 ExpressionFragment =     | "[", Expression, "]", ExpressionFragment;     
