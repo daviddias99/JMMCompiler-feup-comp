@@ -97,11 +97,9 @@ void MethodDeclaration() : {}
 
 void Type() : {}
 {
-    LOOKAHEAD(2) <INT> <LSQRBRACKET> <RSQRBRACKET>
+    <INT> (<LSQRBRACKET> <RSQRBRACKET>)?
     |
     <BOOLEAN>
-    |
-    <INT>
     |
     <IDENTIFIER>
 }
