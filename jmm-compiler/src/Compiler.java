@@ -7,7 +7,7 @@ public class Compiler {
 
         InputStream in = null;
         try {
-            in = new FileInputStream("test/" + args[0]);
+            in = new FileInputStream(args[0]);
         } catch (FileNotFoundException e) {
             System.out.println(args[0] + " file not found");
             return;
