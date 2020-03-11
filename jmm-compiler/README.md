@@ -54,3 +54,5 @@ ExpressionFragment =     | "[", Expression, "]", ExpressionFragment;
  * Nos métodos nao static qual é o identifier usado para o construtor?
  * Assume-se que o construtor n tem argumentos?
  * Em vez de ter parentesis com um ou lá dentro, nao será preferivel ter uma produção nova?
+ * A linguagem permite apenas declarar variaveis antes de todos os statements, e depois um return?
+ * A linguagem permite declarar/usar atributos com o this, ou apenas metodos?
