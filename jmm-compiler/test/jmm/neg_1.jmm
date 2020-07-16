@@ -1,0 +1,25 @@
+class Fac {
+    public int ComputeFac(int num, boolean shouldDivideBy2) {
+        int num_aux;
+        int[] array;
+        array = new int[10];
+        this.num = 0;
+
+        if (num < 1) {
+            num_aux = 1;
+        }
+        else {
+            num_aux = num * (this.ComputeFac(num - 1));
+        }
+
+        while (num_aux < 2) {
+            num_aux = num_aux / 2;
+            array[this.num] = num_aux;
+            this.num = this.num + 1;
+        }
+
+        shouldDivideBy2 = false;
+
+        return num_aux;
+    }
+}

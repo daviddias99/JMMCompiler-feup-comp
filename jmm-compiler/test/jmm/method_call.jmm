@@ -1,0 +1,37 @@
+import TestClass.testStuff(int) int;
+import TestClass.getStuff(int, boolean) Test;
+
+
+class Test {
+    public static void main(String[] args) {
+
+        int var;
+        int[] var2;
+        boolean a;
+        boolean b;
+        TestClass TestClass;
+        a = true;
+        b = false;
+        var = 3;
+        var2 = new int[2+3];
+        TestClass = new TestClass();
+        // this.testMethod1(var2);
+        // this.testMethod3();
+        // var.testMethod1();
+        // testVar1.testStuff(var);
+        // testVar1.testStuff(var,var);
+        // var.testMethod2().testMethod2();
+        TestClass.getStuff(var2[var], ! (a && (3 < 2) && b));
+        // var.hello()[3].hello();
+        // true.testMethod2();
+        // true.testMethod1(1,args[0]);
+
+        // args.hello()[4];
+        // args.hello()[4];
+        // args.hello(args[4]);
+
+        // args.hello()[5];
+        // a[4];
+    }
+}
+

@@ -1,0 +1,58 @@
+import static io.println(int);
+
+class CalendarUtils {
+    public static void main(String[] args) {
+        int daysInJanuary;
+        int secondsInJanuary;
+        CalendarUtils calUtils;
+        calUtils = new CalendarUtils();
+
+        daysInJanuary = calUtils.daysInJanuary(true);
+        secondsInJanuary = calUtils.days2seconds(daysInJanuary);
+
+        io.println(secondsInJanuary);
+    }
+
+    public int days2seconds(int nDays) {
+        int secondsInHour;
+        int hoursInDay;
+        int minutesInHour;
+        int secondsInDay;
+
+        secondsInHour = 60;
+        minutesInHour = 60;
+        hoursInDay = 24;
+
+        secondsInDay = secondsInHour * minutesInHour * hoursInDay;
+
+        return secondsInDay * nDays;
+    }
+
+    public int daysInJanuary(boolean leap) {
+        int[] daysInMonth;
+        int index;
+
+        index = 1;
+        index = index - 1;
+
+        daysInMonth = new int[12];
+        daysInMonth[0] = 31;
+        if (leap) {
+            daysInMonth[1] = 29;
+        } else {
+            daysInMonth[1] = 28;
+        }
+        daysInMonth[2] = 31;
+        daysInMonth[3] = 30;
+        daysInMonth[4] = 31;
+        daysInMonth[5] = 30;
+        daysInMonth[6] = 31;
+        daysInMonth[7] = 31;
+        daysInMonth[8] = 30;
+        daysInMonth[9] = 31;
+        daysInMonth[10] = 30;
+        daysInMonth[11] = 31;
+
+        return daysInMonth[index];
+    }
+}

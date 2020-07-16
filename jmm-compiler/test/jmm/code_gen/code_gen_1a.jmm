@@ -1,0 +1,72 @@
+import static io.println(int);
+import static io.println(boolean);
+import static io.println(String);
+import EightBall.getPrediction() boolean;
+import FormulaCalculator.calculate(int, int, boolean) int;
+
+class Scrambler {
+
+    int var1; 
+    boolean var3;
+    int[] var4;
+    Scrambler var5;
+    
+
+    public int getPIFirstDigit(){
+        return 3;
+    }
+
+    public int computeScramble(EightBall eightB, int num) {
+    
+        int num_aux;
+        int a;
+        int c;
+        int[] d;
+        Scrambler simple;
+        boolean prediction; 
+        boolean prediction1; 
+        boolean prediction2; 
+        FormulaCalculator fcalc;
+		a = 1;
+        d = new int[5];
+        d[2] = 7;
+        var1 = 2;
+        var3 = true;
+        var4 = new int[8 - 2 *a];
+        var4[2] = 5;
+        var5 = new Scrambler();
+        simple = this;
+        fcalc = new FormulaCalculator();
+        
+        prediction = (a < var4[2]) &&  eightB.getPrediction() && !(var3 && (d[2] < a));
+        c = fcalc.calculate(d[2], 2 * var1, true);
+        num_aux = d[2] - 30 / (a + 3) * var1 + this.getPIFirstDigit() + var5.getPIFirstDigit() - c;
+
+        io.println(prediction);
+
+        prediction2 = 0 < 5;
+        io.println(prediction2);
+
+        prediction2 = 5 < 0;
+        io.println(prediction2);
+
+        a = 32;
+        c = a / 16;
+        io.println(c);
+
+        return num_aux - (3 * 2)/6;
+    }
+    
+
+    public static void main(String[] args) {
+    
+        Scrambler simple;
+        EightBall eightB;
+        eightB = new EightBall();
+        simple = new Scrambler();
+        io.println(args[0]);
+        io.println(simple.computeScramble(eightB,3));
+    }
+}
+
+

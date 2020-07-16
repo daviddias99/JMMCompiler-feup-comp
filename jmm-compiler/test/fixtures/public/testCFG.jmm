@@ -1,0 +1,71 @@
+class Coiso {
+    public int coisoETal(int[] A) {
+        int sum; 
+        int i;
+        int t1;
+        int N;
+        sum = 0;                                //0
+        i = 0;                                  //1
+        N = 5;                                  //2
+
+        A[i] = N;                               //3
+        this.olaCoiso(sum, i, N);               //4
+        2 + 2;                                  //5
+
+        if (i < 2) {                            //6
+            if (i < 2) {                            //7
+                N = this.olaCoiso(sum, i, N);       //8
+            }          
+            else{
+                N = this.olaCoiso(sum, i, N);       //9
+
+            }  
+            //10
+        }                                       
+        else {  
+            if (i < 2) {                            //11
+                N = 5;                              //12
+            }          
+            else{
+                N = 5;                              //13
+
+            }   
+            //14
+        }
+        //15
+
+        while (i < N) {                         //16
+            t1 = A[i];                          //17
+            sum = sum + t1;                     //18
+            i = i + 1;                          //19
+        }
+        // 20
+
+        while (i < N) {                         //21
+            while (i < N) {                     //22
+                while (i < N) {                 //23
+                    i = i + 1;                  //24
+                }
+                //25
+
+                if (i < 2) {                            //26
+                    N = 5;                              //27
+                }          
+                else{
+                    N = 5;                              //28
+    
+                }   
+                // 29
+                i = i + 1;                          //30
+            }
+            //31
+        }
+        //32
+
+        return sum;                             //33
+    }
+
+    public int olaCoiso(int i, int r, int c) {
+        return i + r + c;
+    }
+}

@@ -1,0 +1,27 @@
+import static io.println(int) int;
+import static io.println(int) int;
+import io.println(int) int;
+import static io.println(int) boolean;
+
+class Fac {
+    public int ComputeFac(int num, int num) {
+        
+        int num_aux;
+        // int num_aux;
+        // num_aux = num;
+        
+        return num_aux;
+    }
+
+    public int ComputeFac(int num) {
+        
+        boolean num_aux ;
+        num_aux = true;
+        
+        return num_aux;
+    }
+
+    public static void main(String[] args) {
+        io.println(3);
+    }
+}

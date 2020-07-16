@@ -1,0 +1,18 @@
+class Test {
+    public static void main(String[] lol) {
+        Test args;
+        int[] arr;
+        arr = new int[0];
+        args = new Test();
+
+        args.hello();
+        arr.length;
+        args.hello()[3];
+
+        arr[1]; // [2];
+    }
+
+    public int[] hello() {
+        return new int[0];
+    }
+}

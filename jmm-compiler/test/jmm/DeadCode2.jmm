@@ -1,0 +1,29 @@
+import static io.println(int);
+class Test {
+    
+    int a;
+
+    // Initializes a Tic Tac Toe object.
+    public boolean init() {
+        // pieces = new int[2];
+        // io.println(420);
+
+        // pieces[0] = 1;
+        // io.println(420);
+
+        // pieces[1] = 2;
+        // io.println(420);
+        a = 2;
+
+        return true;
+    }
+    public static void main(String[] args) {
+        Test n;
+        n = new Test();
+        n.init();
+
+        io.println(a);
+        // io.println(pieces[1]);
+
+    }
+}
