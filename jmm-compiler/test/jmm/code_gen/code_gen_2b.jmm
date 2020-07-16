@@ -1,7 +1,0 @@
-class Fac{
-
-    public int getStudentCount(int num) {
-        
-        return 800 + num * 3;
-    }
-}
