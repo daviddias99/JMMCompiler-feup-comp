@@ -4,7 +4,7 @@ Compiler of the Java-- language to Java Bytecodes
 ## GROUP
 5g
 
-* (Names, numbers, self assessment, and contribution of the members of the group to the project according to:)
+## Names, numbers, self assessment, and contribution of the members of the group to the project:
 > **NAME1:** David Luís Dias da Silva, NR1: 201705373, GRADE1: 20, CONTRIBUTION1: 25
 >
 > **NAME2:** Eduardo Carreira Ribeiro, NR2: 201705421, GRADE2: 20, CONTRIBUTION2: 25
