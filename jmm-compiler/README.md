@@ -1,5 +1,5 @@
-**PROJECT TITLE: Compiler of the Java-- language to Java Bytecodes
-**GROUP: 5g
+**PROJECT TITLE:** Compiler of the Java-- language to Java Bytecodes
+**GROUP:** 5g
 
 (Names, numbers, self assessment, and contribution of the members of the group to the project according to:)
 NAME1: David Luís Dias da Silva, NR1: 201705373, GRADE1: 20, CONTRIBUTION1: 25
