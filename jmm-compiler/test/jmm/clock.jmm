@@ -1,0 +1,11 @@
+class Clock {
+    public int hours2seconds(int hours) {
+        int secPerMin;
+        int minPerHour;
+
+        secPerMin = 60;
+        minPerHour = secPerMin;
+
+        return secPerMin * minPerHour * hours;
+    }
+}

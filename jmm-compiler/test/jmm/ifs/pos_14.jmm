@@ -1,0 +1,35 @@
+import static io.println(int);
+
+class Fac {
+    public int ComputeFac(int num) {
+
+        int x;
+        int y;
+
+        y= 1;
+        if (y < 3) {
+            x = 1;
+            x = 1;
+        } else {
+            while(y < 2){
+                y = 2;
+            }
+            //x= 4;
+        }
+
+        if (y < 3) {
+            x = 1;
+        } else {
+            while(true){
+                y = 2;
+            }
+            x= 4;
+        }
+
+        return x;
+    }
+
+    public static void main(String[] args) {
+        io.println(new Fac().ComputeFac(10));
+    }
+}

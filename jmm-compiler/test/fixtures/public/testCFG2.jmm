@@ -1,0 +1,30 @@
+import static io.println(int) void;
+
+class Coiso {
+    public int coisoETal(int sum) {
+        int i; 
+        int[] A;
+        int N;
+        int t1;
+
+        A = new int[2];
+        sum = 0;
+        i = 0;
+        t1 = sum;
+        sum=3;
+
+        while(t1 < 5){
+
+            t1 = t1 + 1;
+        }
+
+        return t1;
+    }
+
+    public static void main(String[] a) {
+
+        Coiso ct;
+        ct = new Coiso();
+        io.println(ct.coisoETal(1));
+    }
+}

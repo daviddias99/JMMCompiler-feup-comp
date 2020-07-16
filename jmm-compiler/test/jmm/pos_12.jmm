@@ -1,0 +1,15 @@
+import static io.println(int);
+import Node;
+
+class SimpleNode extends Node {
+    public int ComputeFac(int num) {
+
+        int num_aux ;
+        Node ola;
+
+        num_aux = 0;
+
+        ola = new SimpleNode();
+        return num_aux;
+    }
+}

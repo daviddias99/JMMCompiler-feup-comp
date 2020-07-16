@@ -1,0 +1,25 @@
+
+class Fac {
+    public int ComputeFac(int num) {
+        int num_aux ;
+        if (num < 1)
+            num_aux = 1;
+        else num_aux = num * (this.ComputeFac(num-1));
+
+        return num_aux;
+    }
+
+    public static void main(String[] args) {
+       (new Fac()).ComputeFac(new Fac().ComputeFac(10));
+    }
+
+    public int ComputeFac(String num) {
+        int num2;
+        num2 = 2;
+        while (true) { 5; }
+
+        return num2;
+    }
+
+
+}

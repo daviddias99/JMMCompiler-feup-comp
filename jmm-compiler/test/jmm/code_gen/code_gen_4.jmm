@@ -1,0 +1,53 @@
+import static io.println(int);
+
+class PrintArray {
+
+    public static void main(String[] args) {
+        
+        int[] arr;
+        int n;
+        arr = new int[17];
+
+        n = 0;
+        arr[0] = 3;
+        arr[1] = 5;
+        arr[2] = 9;
+        arr[3] = 4;
+        arr[4] = 3;
+        arr[5] = 3 * 2;
+        arr[6] = 21;
+        arr[7] = 8;
+        arr[8] = 7;
+        arr[9] = 6 / 2;
+        arr[10] = 12;
+        arr[11] = 1;
+        arr[12] = 0;
+        arr[13] = 6;
+        arr[14] = 1;
+        arr[15] = 23;
+        arr[16] = 12;
+
+        n = (arr[0] + arr[10] - arr[16] - arr[5]) * (arr[1] / arr[1]);
+        arr[8] = 2;
+        n = arr[8] * arr[11];
+
+        while(n < arr.length){
+            io.println(arr[n]);
+            arr[12] = arr[12] + 1 + arr[10];
+        }
+        n = arr[11];
+        io.println(1000000000);
+        n = 16;
+        while(0 < n){
+            io.println(arr[n]);
+            n = n - 1;
+        }
+        io.println(1000000000);
+
+        n = 0 - 3;
+        while(n < 0){
+            io.println(arr[2]);
+            n = n + 1;
+        }
+    }
+}

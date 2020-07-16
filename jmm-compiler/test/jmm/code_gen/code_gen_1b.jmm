@@ -1,0 +1,11 @@
+
+class EightBall {
+
+
+    public boolean getPrediction(){
+        return true;
+    }
+
+}
+
+

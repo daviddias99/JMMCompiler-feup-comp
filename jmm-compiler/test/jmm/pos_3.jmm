@@ -1,0 +1,13 @@
+import Vacine;
+
+class Corona {
+    public int healCorona() {
+        Vacine vacine;
+        int[] infectedCount;
+
+        vacine = new Vacine();
+        infectedCount = new int[3 + 4 * 5];
+
+        return 0;
+    }
+}

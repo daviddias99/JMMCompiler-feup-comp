@@ -1,0 +1,76 @@
+import Bar;
+import Bar.test(int) int;
+import Bar.test(int,int) int;
+
+class Foo extends Bar {
+    int[] foo1;
+    int[] foo2;
+    int[] foo3;
+    boolean bar;
+    int foobar;
+    int len;
+
+
+    public Foo method(int num, boolean bool) {
+        int num_aux;
+        Foo test1;
+
+        test1 = new Foo();
+
+        // Tipos diferentes na soma 
+        num_aux = num + bool;
+
+        // Soma de arrays
+        foo3 = foo1 + foo2;
+
+        // Acesso a um nao-array
+        num_aux = num[2];
+
+        // Indice nao inteiro
+        foo1 = foo2[bool];
+
+        //Atribuiçao de tipos diferentes
+        bool = num;
+
+        // Op booleana
+        bool = true && num_aux;
+
+        // boolean condition
+        if(foobar + len){
+
+        }
+        else{
+
+        }
+
+        while(foobar + len){
+
+        }
+
+        // Call to imported method from parent
+        test1.test(num);
+
+        // Call to unexistent overload
+        test1.test(num,bool);
+        test1.test2(num);
+        // Call to existent method
+        this.method2();
+        // Call to unexistent on this overload
+        this.method1();
+
+        return new Foo();
+    }
+
+    public int method2() {
+        int[] num_aux;
+        foo = new int[3];
+        len = 3;
+        num_aux = new int[2];
+
+        while (true && true) {
+            foo[num_aux.length - len] = 5;
+        }
+
+        return num_aux[0];
+    }
+}

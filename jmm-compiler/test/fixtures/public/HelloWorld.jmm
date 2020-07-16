@@ -1,0 +1,7 @@
+// import static ioPlus.printHelloWorld(void) int; TODO: this was the original value of this line
+import static ioPlus.printHelloWorld() int;
+class HelloWorld {
+	public static void main(String[] args) {
+		ioPlus.printHelloWorld();
+	}
+}

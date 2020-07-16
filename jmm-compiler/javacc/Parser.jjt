@@ -1,0 +1,939 @@
+options {
+    LOOKAHEAD = 1;
+    MULTI = true;
+    ERROR_REPORTING = true;
+    TRACK_TOKENS = true;
+    NODE_USES_PARSER = true;
+    STATIC = false;
+}
+
+
+PARSER_BEGIN(Parser)
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
+import exceptions.SemanticParseException;
+
+public class Parser {
+
+    private int syntatcicExceptionCount = 0;                    /* Number of errors caught during parsing */
+    private String syntacticErrorMessage = "";                  /* Error message associated with caught erros (while expression) */
+    private int semanticExceptionCount = 0;
+    private String semanticErrorMessage = "";
+    private String semanticWarningMessage = "";
+    private int parenthesisCount = 0;                            /* Parenthesis count for opening and closing parenthesis (parenthesisCount > 0 => more opening parenthesis than closing and vice versa) */
+    private List<String> lines = new ArrayList<String>();       /* List of lines of the file to be read */
+    private List<JVMInstruction> generatedLines = new ArrayList<JVMInstruction>();
+    private final static int SYNTACTIC_MAX_NUM_ERRORS = 10;     /* Maximum amount of parsing errors that are recovered */
+    private final static int SEMANTIC_MAX_NUM_ERRORS = 10;     /* Maximum amount of parsing errors that are recovered */
+    private SimpleNode treeRoot = null;
+    private BufferedWriter outputFile = null;
+    private GeneralDescriptor symbolTable = null;
+    public String fileName = null;
+
+    private boolean optimizationO = false;
+
+    private int lastLabelID = 0;
+
+    public void setOptimizationO() {
+        this.optimizationO = true;
+    }
+
+    public boolean performOptimizationO() {
+        return this.optimizationO;
+    }
+
+    /**
+     * Initialize the lines array with the lines of the file to be parsed.
+     */
+    public void initFile(String fileName) {
+        BufferedReader reader;
+        this.fileName = fileName;
+        try {
+            reader = new BufferedReader(new FileReader(fileName));
+
+            String line = reader.readLine();
+            while (line != null) {
+                lines.add(line);
+                line = reader.readLine(); // read next line
+            }
+
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Function used to try to recover from erros on the while expression.
+     * This functions skips tokens from the input until a stable point is found.
+     */
+    public int skipToToken() {
+
+        Token nextToken = getToken(1);
+
+        do {
+            // Skip tokens until the eof is found, a left bracket or the while expression is closed.
+            if (nextToken == null || nextToken.kind == LBRACKET || parenthesisCount == 0)
+                break;
+
+            if (nextToken.kind == LPAR) { // Increase the scope when a '(' is found
+                parenthesisCount++;
+            } else if (nextToken.kind == RPAR) { // Decrease the scope when a ')' is found
+                parenthesisCount--;
+            }
+
+            // Advance a token
+            getNextToken();
+            nextToken = getToken(1);
+
+        } while(true);
+
+
+        int numParenthesisMissing = parenthesisCount;
+
+        // Reset the scope value
+        if (parenthesisCount > 0) {
+            parenthesisCount = 0;
+        }
+
+        if (nextToken.kind == RPAR) {
+            getNextToken();
+        }
+
+        return numParenthesisMissing;
+    }
+
+    /**
+     * Function that handles while expressions' errors. It takes the exception generated inside the while
+     * expression and tries to recover the error using 'skipToToken'.
+     * This funcion also builds the error message associated with the parse exception and adds it to the global
+     * error message, also increasing the error count.
+     */
+    public void handleWhileConditionError(ParseException e) throws ParseException{
+
+        // Beginning of the error message
+        String message = "> " + Colors.RED_BOLD + "Error" + Colors.RESET + " on line " + e.currentToken.next.beginLine + " column " + e.currentToken.next.beginColumn + ":\n";
+
+        // Expected tokens
+        String expected = "";
+
+        // Tokens associated with expressions
+        String[] expectedExpressionTokens = { "new", "true", "this", "false", "(", "!", "identifier", "integer" };
+        boolean expectedExpression = false;
+
+        // Go through all expected tokens and add them to the error message;
+        for (int i = 0; i < e.expectedTokenSequences.length; i++) {
+            for (int j = 0; j < e.expectedTokenSequences[i].length; j++) {
+                if (i != 0 || j != 0)
+                    expected += ", ";
+
+                if (e.tokenImage[e.expectedTokenSequences[i][j]].equals("<IDENTIFIER>")) {
+                    e.tokenImage[e.expectedTokenSequences[i][j]] = "identifier";
+                } else if(e.tokenImage[e.expectedTokenSequences[i][j]].equals("<NUMERIC>")) {
+                    e.tokenImage[e.expectedTokenSequences[i][j]] = "numeric";
+                }
+
+                expectedExpression = expectedExpression || Arrays.asList(expectedExpressionTokens).contains(e.tokenImage[e.expectedTokenSequences[i][j]]);
+
+                expected += e.tokenImage[e.expectedTokenSequences[i][j]];
+            }
+        }
+
+        // Error recovery
+        int numParenthesisMissing = skipToToken();
+
+        // Build found-expected segment of the error message
+        if (expectedExpression)
+            message += " found '" + e.currentToken.next.image + "', expected an expression (tokens " + expected + ").";
+        else
+            message += " found '" + e.currentToken.next.image + "', expected " + expected + ".";
+
+        if (numParenthesisMissing > 0)
+            message += "\n" + "The expression is missing the closure of " + numParenthesisMissing + " parenthesis.";
+
+
+        // Add lines showing the line where the error occured and build an indicator underneath.
+        // Indicator is only added if a file was read by initFile
+        String indicator = "";
+        String errorLine = "";
+
+        if (!lines.isEmpty()) {
+
+            errorLine = lines.get(e.currentToken.next.beginLine - 1);
+
+            for(int i = 0; i < e.currentToken.next.beginColumn - 1; i++) {
+                if (errorLine.charAt(i) == '\t')
+                    indicator += "\t";
+                else
+                    indicator += " ";
+            }
+
+            indicator += Colors.GREEN + "^" + Colors.RESET;
+        }
+
+        // Add message to global error message
+        this.syntacticErrorMessage += message +'\n'+ errorLine + "\n" + indicator + "\n";
+        this.syntatcicExceptionCount++;
+
+        // Check if the maximum amount of errors as been reached
+        if (this.syntatcicExceptionCount >= SYNTACTIC_MAX_NUM_ERRORS) {
+            throw new ParseException("Parser caught the maximum amount of errors (" + SYNTACTIC_MAX_NUM_ERRORS + " errors).");
+        }
+    }
+
+    public void handleSemanticError(SemanticParseException exception, SimpleNode errorNode){
+
+        // Beginning of the error message
+        String message = "";
+        if(exception.isError())
+            message = "> " + Colors.RED_BOLD + "Error";
+        else
+            message = "> " + Colors.YELLOW_BOLD + "Warning";
+
+        message += Colors.RESET + " on line " + errorNode.jjtGetFirstToken().beginLine + " column " + errorNode.jjtGetFirstToken().beginColumn + ":\n";
+        message += exception.getMessage();
+        // Add lines showing the line where the error occured and build an indicator underneath.
+        // Indicator is only added if a file was read by initFile
+        String indicator = "";
+        String errorLine = "";
+
+        if (!lines.isEmpty()) {
+
+            errorLine = lines.get(errorNode.jjtGetFirstToken().beginLine  - 1);
+
+            for(int i = 0; i < errorNode.jjtGetFirstToken().beginColumn  - 1; i++) {
+                if (errorLine.charAt(i) == '\t')
+                    indicator += "\t";
+                else
+                    indicator += " ";
+            }
+
+            indicator += Colors.GREEN + "^" + Colors.RESET;
+        }
+
+        // Add message to global error message
+        if(exception.isError()){
+            this.semanticErrorMessage += message +'\n'+ errorLine + "\n" + indicator + "\n";
+            this.semanticExceptionCount++;
+        }
+        else{
+            this.semanticWarningMessage += message +'\n'+ errorLine + "\n" + indicator + "\n";
+        }
+
+        // Check if the maximum amount of errors as been reached
+        if (this.semanticExceptionCount >= SEMANTIC_MAX_NUM_ERRORS) {
+            // throw new SemanticParseException("Parser caught the maximum amount of errors (" + SEMANTIC_MAX_NUM_ERRORS + " errors).");
+        }
+    }
+
+    public void optimizeO() {
+        Map<String, Map<String, Integer>> variables = new HashMap<String, Map<String, Integer>>();
+        this.treeRoot.optimize(symbolTable, variables);
+    }
+
+    public void optimizeR() {
+        this.treeRoot.optR(symbolTable);
+    }
+
+    public void addInstruction(JVMInstruction newInstruction){
+
+        this.generatedLines.add(newInstruction);
+    }
+
+    public void addBatchInstructions(List<JVMInstruction> newInstruction){
+
+        this.generatedLines.addAll(newInstruction);
+    }
+
+    public boolean setCurrentStackLimit(){
+
+        int currStackSize = 0;
+        int currentMax = 0;
+        int i;
+        JVMInstruction stackInst = null;
+
+        for(i = this.generatedLines.size() - 1; i >= 0; i--){
+
+            JVMInstruction currentInstruction = this.generatedLines.get(i);
+
+            if(currentInstruction.getInstruction().indexOf(".limit stack") != -1){
+
+                stackInst = currentInstruction;
+                break;
+            }
+
+        }
+
+        if(stackInst == null)
+            return false;
+
+        for(i = i+1; i < this.generatedLines.size(); i++){
+
+            JVMInstruction currentInstruction = this.generatedLines.get(i);
+
+
+            currStackSize += currentInstruction.getStackDiff();
+            currentMax = Math.max(currStackSize,currentMax);
+        }
+
+        stackInst.setInstruction(stackInst.getInstruction().replace("#",String.valueOf(currentMax))) ;
+
+        return true;
+    }
+
+    public void startSemanthicAnalysis()  throws SemanticParseException, ParseException{
+
+        if(this.treeRoot == null)
+            return;
+
+        this.symbolTable = new GeneralDescriptor();
+
+        try {
+            symbolTable.buildTable(this.treeRoot);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+
+        if(Main.showST)
+            System.out.println(this.symbolTable.toString());
+
+        Set<String> variables =  new HashSet<String>();
+        try {
+            this.treeRoot.analyze(this.symbolTable, variables);
+        } catch (SemanticParseException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(this.semanticWarningMessage);
+
+        // Check if the maximum amount of errors as been reached
+        if (this.semanticExceptionCount > 0) {
+            throw new SemanticParseException(semanticErrorMessage, semanticExceptionCount);
+        }
+
+    }
+
+    public void writeLine(String line){
+
+        if(this.outputFile == null){
+            return;
+        }
+
+        try{
+
+            this.outputFile.write(line + "\n");
+        }
+        catch(IOException ex){
+
+            ex.printStackTrace();
+        }
+    }
+
+    public void startCodeGeneration(String fileName, String destDir) {
+
+        if(this.fileName == null || this.treeRoot == null){
+            System.out.println("Cannot generate code. Syntatic and semantic anlysis needed.");
+        }
+
+        try{
+            File dir = new File(destDir);
+            dir.mkdirs();
+            File file = new File(destDir + fileName);
+            this.outputFile = new BufferedWriter(new FileWriter(file));
+            this.treeRoot.generateCode(this.symbolTable);
+
+            for(int i = 0; i < this.generatedLines.size(); i++){
+                this.writeLine(this.generatedLines.get(i).getInstruction());
+            }
+
+            this.outputFile.close();
+        }
+        catch(IOException ex){
+
+            ex.printStackTrace();
+        }
+    }
+
+    public String getLabel() {
+        lastLabelID++;
+        return "l" + lastLabelID;
+    }
+}
+
+PARSER_END(Parser)
+
+
+SKIP: {
+    " " | "\t" | "\r" | "\n"
+}
+
+TOKEN: {
+    <IF: "if" >
+    | <ELSE: "else" >
+    | <PUBLIC: "public" >
+    | <NEW: "new" >
+    | <INT: "int" >
+    | <TRUE: "true" >
+    | <THIS: "this" >
+    | <VOID: "void" >
+    | <MAIN: "main" >
+    | <STRINGARR: "String[]" >
+    | <FALSE: "false" >
+    | <CLASS: "class" >
+    | <STATIC: "static" >
+    | <LENGTH: "length" >
+    | <RETURN: "return" >
+    | <IMPORT: "import" >
+    | <BOOLEAN: "boolean" >
+    | <EXTENDS: "extends" >
+    | <WHILE: "while" >
+    | <LBRACKET: "{" >
+    | <RBRACKET: "}" >
+    | <LPAR: "(" >
+    | <RPAR: ")" >
+    | <LSQRBRACKET: "[" >
+    | <RSQRBRACKET: "]" >
+    | <SCOLON: ";" >
+    | <COMMA: "," >
+    | <EQUALS: "=" >
+    | <AND: "&&" >
+    | <LESS: "<" >
+    | <PLUS: "+" >
+    | <MINUS: "-" >
+    | <MUL: "*" >
+    | <DIV: "/" >
+    | <DOT: "." >
+    | <NOT: "!" >
+    | <IDENTIFIER: ["a"-"z", "A"-"Z", "_", "$"](["a"-"z", "A"-"Z", "0"-"9", "_", "$"])* >
+    | <NUMERIC: (["0"-"9"])+ >
+}
+
+/*
+ * Comments
+ */
+<DEFAULT> MORE : { "//" : IN_SINGLE_LINE_COMMENT
+                 | <"/**" ~["/"]> : IN_FORMAL_COMMENT
+                 | "/*" : IN_MULTI_LINE_COMMENT
+                 | "/*@bgen(jjtree" : IN_MULTI_LINE_COMMENT
+}
+
+<IN_SINGLE_LINE_COMMENT> SPECIAL_TOKEN : {
+    <SINGLE_LINE_COMMENT: "\n" | "\r" | "\r\n"> : DEFAULT
+}
+
+<IN_FORMAL_COMMENT> SPECIAL_TOKEN : {
+    <FORMAL_COMMENT: "*/"> : DEFAULT
+}
+
+<IN_MULTI_LINE_COMMENT> SPECIAL_TOKEN : {
+    <MULTI_LINE_COMMENT: "*/"> : DEFAULT
+}
+
+<IN_SINGLE_LINE_COMMENT, IN_FORMAL_COMMENT, IN_MULTI_LINE_COMMENT> MORE : {
+    <~[]>
+}
+
+/**
+ * Grammar productions
+ */
+
+SimpleNode Program() : {}
+{
+    // Reset error tracking
+    {
+        this.syntatcicExceptionCount = 0;
+        this.syntacticErrorMessage = "";
+        this.parenthesisCount = 0;
+    }
+
+    try {
+        Imports() ClassDeclaration() <EOF>
+    } catch (ParseException e) {
+        // Add new error message to previous error messages and end the execution.
+        this.syntatcicExceptionCount++;
+        if (syntatcicExceptionCount > 0) {
+            throw new ParseException(e, syntacticErrorMessage, syntatcicExceptionCount);
+        }
+    }
+
+    {
+        // Check if any while expression error messages were caught
+        if (syntatcicExceptionCount > 0) {
+            throw new ParseException(syntacticErrorMessage, syntatcicExceptionCount);
+        }
+
+        this.treeRoot = jjtThis;
+        return jjtThis;
+    }
+}
+
+void Imports() #void : {}
+{
+    (Import() <SCOLON>)*
+}
+
+// void ImportDeclaration() #void : {}
+// {
+//     <IMPORT>
+//     (
+//         ImportStatic()
+//     |
+//         ImportNotStatic()
+//     )
+//     <SCOLON>
+// }
+
+// void ImportStatic() #Import : { Token t; }
+// {
+//     <STATIC> { jjtThis.setStatic(true); }
+
+//     t = <IDENTIFIER> { jjtThis.setClassName(t.image); }
+//     <DOT>
+//     t = <IDENTIFIER> { jjtThis.setMethodName(t.image); }
+
+//     ImportParams()
+// }
+
+// void ImportNotStatic() #Import : { Token t; }
+// {
+//     t = <IDENTIFIER> { jjtThis.setClassName(t.image); } // if it only has one identifier, it's a constructor
+//     (
+//         <DOT>
+//         t = <IDENTIFIER> { jjtThis.setMethodName(t.image); }
+
+//         ImportParams()
+//     )?
+// }
+
+// void ImportParams() #void : {}
+// {
+//     <LPAR> {
+//         this.parenthesisCount++;
+//     }
+
+//     ((Type() (<COMMA> Type())*) | <VOID>)? #ParamList
+
+//     <RPAR> {
+//         this.parenthesisCount--;
+//     }
+
+//     (Type() | <VOID>)? #Return // if return type doesn't exist, assume it's void
+// }
+
+void Import(): {Token t;}{
+    <IMPORT> [<STATIC> {jjtThis.setStatic(true);}] t=<IDENTIFIER>{jjtThis.setClassName(t.image);} [<DOT> t=<IDENTIFIER> {jjtThis.setMethodName(t.image);}]
+     ([ <LPAR> { this.parenthesisCount++; }
+        ParamList()
+        <RPAR> { this.parenthesisCount--; }
+        [Type()|<VOID>] #Return ])
+}
+
+void ParamList(): {} {
+    [Type()  (<COMMA> Type())*]
+}
+
+void ClassDeclaration() #Class : { Token t;}
+{
+    <CLASS>
+    t = <IDENTIFIER> { jjtThis.value = t.image; }
+    (
+        <EXTENDS> t = <IDENTIFIER> { jjtThis.value = t.image; } #Extends
+    )?
+    <LBRACKET>
+    (VarDeclaration() <SCOLON>)*
+    (MethodDeclaration())*
+    <RBRACKET>
+}
+
+void VarDeclaration() #VarDeclaration(2) : { }
+{
+    Type() Identifier()
+}
+
+void MethodDeclaration() #Method : { Token t; }
+{
+    <PUBLIC>
+    (
+        Type()
+        t = <IDENTIFIER> { jjtThis.value = t.image; }
+        <LPAR> { this.parenthesisCount++; }
+        (
+            VarDeclaration()
+            (
+                <COMMA> VarDeclaration()
+            )*
+        )? #ParamList
+        <RPAR> { this.parenthesisCount--; }
+        <LBRACKET>
+        MethodBody() #Body
+        <RETURN> Expression() #Return(1) <SCOLON>
+        <RBRACKET>
+    |
+        <STATIC>
+        <VOID>
+        t = <MAIN> {jjtThis.value = t.image;
+                    jjtThis.isStatic = true;
+        }
+        <LPAR> { this.parenthesisCount++; }
+        (
+            (
+                t = <STRINGARR> { jjtThis.value = t.image; } #Type
+                Identifier()
+            ) #VarDeclaration(2)
+        ) #ParamList
+        <RPAR> { this.parenthesisCount--; }
+        <LBRACKET>
+        MethodBody() #Body
+        <RBRACKET>
+    )
+}
+
+void MethodBody() #void : { Token t; }
+{
+    (
+        TypeNoId()
+        Identifier()
+        <SCOLON>
+    ) #VarDeclaration(2)
+    MethodBody()
+|
+    t = <IDENTIFIER> StartsWithId(t)
+|
+    NotIdStatement() Statements()
+|
+    {}
+}
+
+void StartsWithId(Token t2) #void : { Token t; }
+{
+    ({ jjtThis.value = t2.image; } #Type
+    t = <IDENTIFIER> {jjtThis.value = t.image;} #Identifier <SCOLON>) #VarDeclaration(2) MethodBody()
+|
+    { jjtThis.value = t2.image; } #Identifier StatementAfterId() <SCOLON> Statements()
+}
+
+/**
+ * Statement productions
+ */
+void Statements() #void : {}
+{
+    (Statement())*
+}
+
+void Statement() #void : {}
+{
+    NotIdStatement()
+|
+    IdStatement()
+}
+
+void NotIdStatement() #void : {}
+{
+    <LBRACKET> (Statement())* #Scope <RBRACKET>
+|
+    IfStatement()
+|
+    WhileLoop()
+|
+    ExpressionNotID() <SCOLON>
+}
+
+void IdStatement() #void : {}
+{
+    Identifier() StatementAfterId() <SCOLON>
+}
+
+void StatementAfterId() #void : {}
+{
+    <EQUALS> Expression() #Assignment(2)
+|
+    ArrayAccess() ArrayStatement()
+|
+    ExpNotArray()
+}
+
+void IfStatement() : {}
+{
+    <IF> Condition() Statement()
+    <ELSE> Statement()
+}
+
+void WhileLoop() #While : {}
+{
+    try {
+        <WHILE> Condition()
+    } catch (ParseException e) {
+        handleWhileConditionError(e);
+    }
+
+    Statement()
+}
+
+void Condition() #Condition : {}
+{
+    <LPAR> { this.parenthesisCount++; }
+    Expression()
+    <RPAR> { this.parenthesisCount--; }
+}
+
+void Identifier() #Identifier : { Token t; }
+{
+    t = <IDENTIFIER> { jjtThis.value = t.image; }
+}
+
+void Type() #void : { Token t; }
+{
+    t = <IDENTIFIER> { jjtThis.value = t.image; } #Type
+|
+    TypeNoId()
+}
+
+void TypeNoId() #Type : { Token t; Boolean b = false; }
+{
+    t = <BOOLEAN> { jjtThis.value = t.image; }
+|
+    (
+        t = <INT> (<LSQRBRACKET> <RSQRBRACKET> { b = true; } )? {
+            if (b)
+                jjtThis.value = t.image + "[]";
+            else
+                jjtThis.value = t.image;
+        }
+    )
+}
+
+void ArrayStatement() #void : {}
+{
+    <EQUALS> Expression() #Assignment(2)
+|
+    ExpNoLeftTerminal()
+}
+
+void DotMethod() #Identifier : { Token t; }
+{
+    t = <LENGTH> { jjtThis.value = t.image; }
+|
+    t = <IDENTIFIER> { jjtThis.value = t.image; }
+    <LPAR> { this.parenthesisCount++; }
+    (Expression() (<COMMA> Expression())*)?
+    <RPAR> { this.parenthesisCount--; }
+}
+
+void ArrayAccess() #ArrayAccess(2) : {}
+{
+    <LSQRBRACKET> Expression() <RSQRBRACKET>
+}
+
+/**
+ * Expression productions
+ */
+void Expression() #void : {}
+{
+    Exp1() ExpressionPrime()
+}
+
+void ExpressionPrime() #void : {}
+{
+    <AND> Exp1() #And(2) ExpressionPrime()
+|
+    {}
+}
+
+void Exp1() #void : {}
+{
+    Exp2() Exp1Prime()
+}
+
+void Exp1Prime() #void : {}
+{
+    <LESS> Exp2() #Less(2) Exp1Prime()
+|
+    {}
+}
+
+void Exp2() #void : {}
+{
+    Exp3() Exp2Prime()
+}
+
+void Exp2Prime() #void : {}
+{
+    <PLUS> Exp3() #Add(2) Exp2Prime()
+|
+    <MINUS> Exp3() #Sub(2) Exp2Prime()
+|
+    {}
+}
+
+void Exp3() #void : {}
+{
+    Exp4() Exp3Prime()
+}
+
+void Exp3Prime() #void : {}
+{
+    <MUL> Exp4() #Mul(2) Exp3Prime()
+|
+    <DIV> Exp4() #Div(2) Exp3Prime()
+|
+    {}
+}
+
+void Exp4() #void : {}
+{
+    Exp5() Exp4Prime()
+}
+
+void Exp4Prime() #void : {}
+{
+    <DOT> DotMethod() #MethodCall(2) Exp5Prime() Exp4Prime()
+|
+    {}
+}
+
+void Exp5() #void : {}
+{
+    ExpTerminal() Exp5Prime()
+}
+
+void Exp5Prime() #void : {}
+{
+    ArrayAccess() Exp5Prime()
+|
+    {}
+}
+
+/**
+ * Expression that doesn't accept an identifier as its leftmost terminal
+ */
+void ExpressionNotID() #void : {}
+{
+    Exp1NotID() ExpressionPrime()
+}
+
+void Exp1NotID() #void : {}
+{
+    Exp2NotID() Exp1Prime()
+}
+
+void Exp2NotID() #void : {}
+{
+    Exp3NotID() Exp2Prime()
+}
+
+void Exp3NotID() #void : {}
+{
+    Exp4NotID() Exp3Prime()
+}
+
+void Exp4NotID() #void : {}
+{
+    Exp5NotID() Exp4Prime()
+}
+
+void Exp5NotID() #void : {}
+{
+    ExpTerminalNotID() Exp5Prime()
+}
+
+/**
+ * Expression that can't have an array access at the leftmost position
+ */
+void ExpNotArray() #void : {}
+{
+    Exp1NotArray() ExpressionPrime()
+}
+
+void Exp1NotArray() #void : {}
+{
+    Exp2NotArray() Exp1Prime()
+}
+
+void Exp2NotArray() #void : {}
+{
+    Exp3NotArray() Exp2Prime()
+}
+
+void Exp3NotArray() #void : {}
+{
+    Exp4Prime() Exp3Prime()
+}
+
+/**
+ * Expression that doesn't have a left most "terminal" (i. e. starts with an operator)
+ */
+void ExpNoLeftTerminal() #void : {}
+{
+    Exp1NoLeftTerminal() ExpressionPrime()
+}
+
+void Exp1NoLeftTerminal() #void : {}
+{
+    Exp2NoLeftTerminal() Exp1Prime()
+}
+
+void Exp2NoLeftTerminal() #void : {}
+{
+    Exp3NoLeftTerminal() Exp2Prime()
+}
+
+void Exp3NoLeftTerminal() #void : {}
+{
+    Exp4NoLeftTerminal() Exp3Prime()
+}
+
+void Exp4NoLeftTerminal() #void : {}
+{
+    Exp5NoLeftTerminal() Exp4Prime()
+}
+
+void Exp5NoLeftTerminal() #void : {}
+{
+    Exp5Prime()
+}
+
+
+void ExpTerminal() #void : { Token t; }
+{
+    ExpTerminalNotID()
+|
+    Identifier()
+}
+
+void ExpTerminalNotID() #void : { Token t; }
+{
+    <LPAR> { this.parenthesisCount++; } Expression() <RPAR> { this.parenthesisCount--; }
+|
+    <NOT> (Exp5() Exp4Prime()) #Not(1)
+|
+    t = <NUMERIC> { jjtThis.value = t.image;} #Numeric
+|
+    t = <TRUE> { jjtThis.value = t.image; } #Boolean
+|
+    t = <FALSE> { jjtThis.value = t.image; } #Boolean
+|
+    <THIS> #This
+|
+    <NEW>
+    (
+        t = <INT> <LSQRBRACKET> Expression() <RSQRBRACKET>
+        { jjtThis.value = t.image + "[]"; } #Type(1)
+    |
+        t = <IDENTIFIER>
+        <LPAR> { this.parenthesisCount++; }
+        ((Expression() (<COMMA> Expression())*)? { jjtThis.value = t.image;  }) #Type
+        <RPAR> { this.parenthesisCount--; }
+    ) #New
+}

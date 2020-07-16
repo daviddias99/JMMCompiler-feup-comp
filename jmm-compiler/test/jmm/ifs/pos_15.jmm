@@ -1,0 +1,34 @@
+import static io.println(int);
+import Node;
+
+class Stmt{
+    int d;
+    public static void main(String[] args){        
+        int a;
+        int b;
+        int c;
+        int d;
+        int e;
+
+        a = 5;
+
+        if(a < 5){
+            d = 0;
+            c = d;
+        }
+        else{
+            c = d;
+        }
+
+        a = d;
+    }
+
+    public int cenas(){        
+        int a;
+        
+        d = a;
+
+        return a;
+        
+    }
+}
