@@ -8,7 +8,7 @@
 
 ---
 
-**Project:** JMM Compiler
+**Project: JMM Compiler**
 
 * The tool built serves as a compiler of .jmm files, written in the Java-- language, a subset of the Java language. All programs that are valid in the Java-- language are also valid in the Java language. 
 * The compiler generates files of the classes with JVM instructions accepted by jasmin, a tool that translates those classes in Java bytecodes (classfiles). The generated classes given Java-- code can be integrated in a Java application. Those classes can invoke Java methods previously compiled to bytecodes.
